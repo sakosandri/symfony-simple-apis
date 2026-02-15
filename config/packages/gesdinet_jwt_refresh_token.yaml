@@ -1,0 +1,9 @@
+# config/packages/gesdinet_jwt_refresh_token.yaml
+
+gesdinet_jwt_refresh_token:
+    refresh_token_class: App\Entity\RefreshToken
+    ttl: 2592000  # 30 days in seconds
+    ttl_update: true  # Update token TTL on refresh
+    firewall: api  # The firewall to use for token refresh
+    user_provider: app_user_provider  # Your user provider from security.yaml
+    user_identity_field: email  # The field to identify users
