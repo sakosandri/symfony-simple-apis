@@ -159,52 +159,57 @@ public function login(
     );
 }
 
+#[Route('/api/refresh', name: 'api_refresh', methods: ['POST'])]
+public function refresh(
+    Request $request,
+    EntityManagerInterface $em,
+    JWTTokenManagerInterface $jwtManager
+): ApiResponse {
+    $data = json_decode($request->getContent(), true);
 
-    #[Route('/api/refresh', name: 'api_refresh', methods: ['POST'])]
-    public function refresh(
-        Request $request,
-        EntityManagerInterface $em,
-        JWTTokenManagerInterface $jwtManager
-    ): ApiResponse {
-        $data = json_decode($request->getContent(), true);
-
-        if (!isset($data['refresh_token'])) {
-            return ApiResponse::validationError(
-                errors: ['refresh_token' => 'Refresh token is required'],
-                message: 'Refresh token required'
-            );
-        }
-
-        $refreshToken = $em->getRepository(RefreshToken::class)
-            ->findOneBy(['token' => $data['refresh_token']]);
-
-        if (!$refreshToken) {
-            return ApiResponse::unauthorized(
-                message: 'Invalid refresh token',
-                errors: ['refresh_token' => 'Refresh token not found']
-            );
-        }
-
-        if ($refreshToken->getExpiresAt() < new \DateTime()) {
-            return ApiResponse::unauthorized(
-                message: 'Refresh token expired',
-                errors: ['refresh_token' => 'Refresh token has expired']
-            );
-        }
-
-        $user = $refreshToken->getUser();
-        $newAccessToken = $jwtManager->create($user);
-
-        return ApiResponse::success(
-            data: [
-                'access_token' => $newAccessToken,
-                'expires_in' => 900,
-                'user' => [
-                    'id' => $user->getId(),
-                    'email' => $user->getEmail(),
-                ]
-            ],
-            message: 'Token refreshed successfully'
+    // Make sure the client sent a refresh token
+    $refreshTokenValue = $data['refresh_token'] ?? null;
+    if (!$refreshTokenValue) {
+        return ApiResponse::validationError(
+            errors: ['refresh_token' => 'Refresh token is required'],
+            message: 'Refresh token required'
         );
     }
+
+    // Look up the refresh token in the DB
+    $refreshToken = $em->getRepository(RefreshToken::class)
+        ->findOneBy(['refreshToken' => $refreshTokenValue]);
+
+    if (!$refreshToken) {
+        return ApiResponse::unauthorized(
+            message: 'Invalid refresh token',
+            errors: ['refresh_token' => 'Refresh token not found']
+        );
+    }
+
+    // Check expiration
+    if ($refreshToken->getExpiresAt() < new \DateTime()) {
+        return ApiResponse::unauthorized(
+            message: 'Refresh token expired',
+            errors: ['refresh_token' => 'Refresh token has expired']
+        );
+    }
+
+    // Generate new JWT access token
+    $user = $refreshToken->getUser();
+    $newAccessToken = $jwtManager->create($user);
+
+    return ApiResponse::success(
+        data: [
+            'access_token' => $newAccessToken,
+            'expires_in' => 900, // 15 minutes
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+            ]
+        ],
+        message: 'Token refreshed successfully'
+    );
+}
+
 }

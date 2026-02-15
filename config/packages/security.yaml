@@ -36,9 +36,15 @@ security:
             #     success_handler: lexik_jwt_authentication.handler.authentication_success
             #     failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        # Token refresh firewall (if you're using refresh tokens)
-        refresh:
+        # Token refresh firewall for gesdinet bundle: /api/token/refresh
+        refresh_gesdinet:
             pattern: ^/api/token/refresh
+            stateless: true
+            security: false
+
+        # Token refresh firewall for YOUR custom endpoint: /api/refresh
+        refresh_custom:
+            pattern: ^/api/refresh
             stateless: true
             security: false
 
@@ -49,10 +55,11 @@ security:
             jwt: ~
 
     access_control:
-        # These are now redundant since firewalls handle access, but keep for clarity
+        # Public access endpoints
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api/refresh, roles: PUBLIC_ACCESS }
         
         # Protect all other API endpoints
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
