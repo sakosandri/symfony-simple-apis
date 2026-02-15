@@ -25,6 +25,10 @@ security:
             security: false
 
         # Login firewall: handles /api/login automatically via JSON login
+        # doc:
+        #     pattern: ^/api/doc
+        #     stateless: true
+            
         login:
             pattern: ^/api/login
             stateless: true
@@ -56,6 +60,9 @@ security:
 
     access_control:
         # Public access endpoints
+        # Swagger documentation - public access
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc\.json, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
