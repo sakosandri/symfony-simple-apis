@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'products')]
+#[ORM\HasLifecycleCallbacks]
 class Product
 {
     #[ORM\Id]
@@ -23,7 +24,37 @@ class Product
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private User $user;
 
-    public function getId(): ?int
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $createdAt;
+
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $updatedAt;
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
+
+    // ... existing getters/setters ...
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+     public function getId(): ?int
     {
         return $this->id;
     }
@@ -32,32 +63,33 @@ class Product
     {
         return $this->name;
     }
+    public function getPrice(): string
 
-    public function setName(string $name): static
+
+    {
+        return $this->price;
+    }
+        public function setName(string $name): static
+
+
     {
         $this->name = $name;
         return $this;
     }
-
-    public function getPrice(): string
-    {
-        return $this->price;
-    }
-
-    public function setPrice(string $price): static
+        public function setPrice(string $price): static
     {
         $this->price = $price;
         return $this;
     }
-
-    public function getUser(): User
-    {
-        return $this->user;
-    }
-
-    public function setUser(User $user): static
+        public function setUser(User $user): static
     {
         $this->user = $user;
+
+
+
+
+
         return $this;
     }
+
 }
