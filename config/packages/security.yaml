@@ -28,13 +28,13 @@ security:
         login:
             pattern: ^/api/login
             stateless: true
-            provider: app_user_provider
-            json_login:
-                check_path: /api/login
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            # provider: app_user_provider
+            # json_login:
+            #     check_path: /api/login
+            #     username_path: email
+            #     password_path: password
+            #     success_handler: lexik_jwt_authentication.handler.authentication_success
+            #     failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         # Token refresh firewall (if you're using refresh tokens)
         refresh:

@@ -1,5 +1,4 @@
 <?php
-// src/Security/JWTLoginSuccessHandler.php
 namespace App\Security;
 
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
@@ -23,12 +22,12 @@ class JWTLoginSuccessHandler
         // Create a refresh token
         $refreshToken = new RefreshToken();
         $refreshToken->setUser($user);
-        $refreshToken->setToken(bin2hex(random_bytes(64)));
+        $refreshToken->setRefreshToken(bin2hex(random_bytes(64)));
         $refreshToken->setExpiresAt(new \DateTime('+30 days'));
         $this->em->persist($refreshToken);
         $this->em->flush();
 
-        $data['refresh_token'] = $refreshToken->getToken();
+        $data['refresh_token'] = $refreshToken->getRefreshToken();
 
         $event->setData($data);
     }

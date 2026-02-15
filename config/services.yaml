@@ -1,15 +1,30 @@
-parameters:
+# config/services.yaml
 
 services:
-
     _defaults:
         autowire: true
         autoconfigure: true
 
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
 
-    # Custom JWT login success handler to return refresh token
-    App\Security\JWTLoginSuccessHandler:
+    # JWT Event Listeners
+    App\EventListener\JWTAuthenticationSuccessListener:
         tags:
-            - { name: 'lexik_jwt_authentication.handler.authentication_success' }
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccess }
+
+    App\EventListener\JWTAuthenticationFailureListener:
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_failure, method: onAuthenticationFailure }
+
+    App\EventListener\JWTInvalidListener:
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_invalid, method: onJWTInvalid }
+
+    App\EventListener\JWTNotFoundListener:
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_not_found, method: onJWTNotFound }
